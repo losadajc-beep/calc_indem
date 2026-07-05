@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Indemnización · ERE</title>
+<style>
+  :root{
+    --ink:#152238;
+    --ink-soft:#3d4a63;
+    --paper:#F4F3EF;
+    --paper-raised:#FFFFFF;
+    --line:#DAD6CC;
+    --gold:#B6862C;
+    --gold-soft:#F1E4C6;
+    --exento:#2F6F5E;
+    --exento-soft:#DCEBE6;
+    --sujeto:#8B3A3A;
+    --sujeto-soft:#F2E0DD;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .sans{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+  .mono{font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;}
+
+  header{
+    padding:28px 20px 22px;
+    border-bottom:1px solid var(--line);
+    background:var(--paper-raised);
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  .eyebrow{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:11px;
+    color:var(--gold);
+    font-weight:700;
+    margin:0 0 6px;
+  }
+  h1{
+    margin:0;
+    font-size:26px;
+    font-weight:600;
+    line-height:1.2;
+    letter-spacing:-.01em;
+  }
+  .subtitle{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    color:var(--ink-soft);
+    font-size:13.5px;
+    margin-top:8px;
+    line-height:1.5;
+  }
+
+  main{
+    max-width:520px;
+    margin:0 auto;
+    padding:22px 18px 0;
+  }
+
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px 18px;
+    margin-bottom:16px;
+  }
+  .card h2{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--ink-soft);
+    margin:0 0 16px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card h2::before{
+    content:"";
+    width:16px;
+    height:2px;
+    background:var(--gold);
+    display:inline-block;
+  }
+
+  label{
+    display:block;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .field{margin-bottom:16px;}
+  .field:last-child{margin-bottom:0;}
+  .field small{
+    display:block;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:5px;
+  }
+  input[type="date"], input[type="number"]{
+    width:100%;
+    padding:12px 14px;
+    font-size:16px;
+    font-family:'SFMono-Regular',Consolas,monospace;
+    border:1.5px solid var(--line);
+    border-radius:9px;
+    background:#FBFAF7;
+    color:var(--ink);
+    -webkit-appearance:none;
+  }
+  input:focus{
+    outline:none;
+    border-color:var(--gold);
+    background:#fff;
+  }
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  button.calc{
+    width:100%;
+    padding:16px;
+    font-size:15.5px;
+    font-weight:700;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    letter-spacing:.02em;
+    color:#fff;
+    background:var(--ink);
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    transition:transform .12s ease, background .2s ease;
+    margin-top:4px;
+  }
+  button.calc:active{transform:scale(0.98);background:#0d1930;}
+
+  /* Timeline signature element */
+  .timeline{
+    margin:6px 0 4px;
+  }
+  .timeline-track{
+    display:flex;
+    height:34px;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .timeline-seg{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'SFMono-Regular',Consolas,monospace;
+    font-size:11px;
+    font-weight:700;
+    color:#fff;
+    white-space:nowrap;
+    overflow:hidden;
+  }
+  .seg-pre{background:var(--gold);}
+  .seg-post{background:var(--ink);}
+  .timeline-labels{
+    display:flex;
+    justify-content:space-between;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+
+  /* results */
+  .result-hero{
+    text-align:center;
+    padding:6px 0 14px;
+  }
+  .result-hero .label{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .result-hero .value{
+    font-family:'SFMono-Regular',Consolas,monospace;
+    font-size:34px;
+    font-weight:700;
+    color:var(--ink);
+  }
+
+  .split-bar{
+    display:flex;
+    height:44px;
+    border-radius:9px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    margin:14px 0 10px;
+  }
+  .split-seg{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-family:'SFMono-Regular',Consolas,monospace;
+    font-size:12px;
+    font-weight:700;
+    color:#fff;
+    line-height:1.2;
+  }
+  .split-exento{background:var(--exento);}
+  .split-sujeto{background:var(--sujeto);}
+
+  .legend{
+    display:flex;
+    justify-content:space-between;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:12px;
+    margin-bottom:18px;
+  }
+  .legend span{display:flex;align-items:center;gap:6px;color:var(--ink-soft);}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .dot-exento{background:var(--exento);}
+  .dot-sujeto{background:var(--sujeto);}
+
+  .line-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:11px 0;
+    border-bottom:1px solid var(--line);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  .line-item:last-child{border-bottom:none;}
+  .line-item .k{font-size:13.5px;color:var(--ink-soft);}
+  .line-item .v{font-family:'SFMono-Regular',Consolas,monospace;font-size:14.5px;font-weight:700;color:var(--ink);}
+  .line-item.total .k, .line-item.total .v{color:var(--ink);font-weight:700;}
+  .tag{
+    display:inline-block;
+    font-size:10px;
+    font-weight:700;
+    padding:2px 7px;
+    border-radius:20px;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+  .tag-exento{background:var(--exento-soft);color:var(--exento);}
+  .tag-sujeto{background:var(--sujeto-soft);color:var(--sujeto);}
+
+  /* recommendation card */
+  .reco{
+    border-radius:var(--radius);
+    padding:20px 18px;
+    border:1.5px solid var(--gold);
+    background:var(--gold-soft);
+    margin-bottom:16px;
+  }
+  .reco .reco-eyebrow{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-weight:800;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+  .reco .reco-title{
+    font-size:19px;
+    font-weight:700;
+    margin-bottom:10px;
+    line-height:1.3;
+  }
+  .reco p{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:13.5px;
+    color:var(--ink);
+    line-height:1.55;
+    margin:0 0 8px;
+  }
+  .reco p:last-child{margin-bottom:0;}
+
+  .stamp-row{display:flex;gap:10px;margin-top:12px;}
+  .stamp{
+    flex:1;
+    text-align:center;
+    padding:10px 6px;
+    border-radius:8px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:11.5px;
+    font-weight:700;
+    border:1.5px dashed var(--line);
+    color:var(--ink-soft);
+  }
+  .stamp.active{
+    border-style:solid;
+    border-color:var(--ink);
+    background:var(--ink);
+    color:#fff;
+  }
+
+  .foot-note{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    padding:0 4px;
+    margin-top:6px;
+  }
+
+  #resultsWrap{display:none;}
+  .error-box{
+    background:var(--sujeto-soft);
+    color:var(--sujeto);
+    border-radius:9px;
+    padding:12px 14px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:13px;
+    margin-bottom:16px;
+    display:none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">RLT · Comité de Empresa</p>
+  <h1>Calculadora de indemnización</h1>
+  <p class="subtitle">Simula el reparto entre indemnización exenta y mejora sujeta a IRPF, y cómo cobrarla para no perder la reducción del 30%.</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <h2>Datos del contrato</h2>
+    <div class="field">
+      <label for="fechaAlta">Fecha de alta en la empresa</label>
+      <input type="date" id="fechaAlta" value="1998-03-16">
+    </div>
+    <div class="field">
+      <label for="fechaCese">Fecha de extinción del contrato</label>
+      <input type="date" id="fechaCese" value="2026-09-01">
+    </div>
+    <div class="field">
+      <label for="salarioAnual">Salario bruto anual (€)</label>
+      <input type="number" id="salarioAnual" value="60000" min="0" step="100">
+      <small>Salario diario = salario anual ÷ 365</small>
+    </div>
+    <div class="field">
+      <label for="diasMejora">Días de indemnización pactados por año (mejora RLT)</label>
+      <input type="number" id="diasMejora" value="65" min="0" step="1">
+      <small>Fórmula negociadora total, antes de aplicar la exención</small>
+    </div>
+    <button class="calc" onclick="calcular()">Calcular indemnización</button>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div id="resultsWrap">
+
+    <div class="card">
+      <h2>Antigüedad</h2>
+      <div class="timeline">
+        <div class="timeline-track" id="timelineTrack"></div>
+        <div class="timeline-labels">
+          <span id="labelPre"></span>
+          <span id="labelPost"></span>
+        </div>
+      </div>
+      <p class="foot-note" id="antiguedadTexto"></p>
+    </div>
+
+    <div class="card">
+      <h2>Resumen final</h2>
+      <div class="result-hero">
+        <div class="label">Total bruto a percibir</div>
+        <div class="value" id="totalBruto">—</div>
+      </div>
+
+      <div class="split-bar" id="splitBar"></div>
+      <div class="legend">
+        <span><span class="dot dot-exento"></span>Exento IRPF</span>
+        <span><span class="dot dot-sujeto"></span>Sujeto a IRPF</span>
+      </div>
+
+      <div class="line-item">
+        <span class="k">Indemnización exenta <span class="tag tag-exento">Art. 7.e) LIRPF</span></span>
+        <span class="v" id="lineExento">—</span>
+      </div>
+      <div class="line-item">
+        <span class="k">Mejora sujeta (antes de reducción)</span>
+        <span class="v" id="lineMejora">—</span>
+      </div>
+      <div class="line-item">
+        <span class="k">Base tras reducción 30% <span class="tag tag-sujeto">Art. 18.2 LIRPF</span></span>
+        <span class="v" id="lineBaseReducida">—</span>
+      </div>
+      <div class="line-item total">
+        <span class="k">Ahorro fiscal por reducción</span>
+        <span class="v" id="lineAhorro">—</span>
+      </div>
+    </div>
+
+    <div class="reco" id="recoCard">
+      <div class="reco-eyebrow">Cómo cobrar la indemnización</div>
+      <div class="reco-title" id="recoTitle">—</div>
+      <p id="recoTexto">—</p>
+      <div class="stamp-row">
+        <div class="stamp" id="stampUnico">PAGO ÚNICO</div>
+        <div class="stamp" id="stampFrac">FRACCIONADO EN 2 AÑOS</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Notas</h2>
+      <p class="foot-note">
+        Cálculo orientativo. El salario diario se estima como salario anual ÷ 365. El régimen transitorio mixto (45 días/año hasta el 11/2/2012 y 33 días/año desde el 12/2/2012) se aplica con el tope de 720 días de salario, salvo que el período anterior a 2012 por sí solo supere ese tope, con el límite adicional de 42 mensualidades y el límite absoluto de exención de 180.000 €. La reducción del 30% requiere periodo de generación superior a 2 años y, en caso de fraccionamiento, que el cociente antigüedad/nº de ejercicios sea superior a 2. Herramienta de apoyo a la negociación — no sustituye el asesoramiento fiscal individualizado.
+      </p>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+function monthsBetween(d1, d2){
+  // meses de fecha a fecha, con prorrateo de días entre 30
+  let months = (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
+  let dayDiff = d2.getDate() - d1.getDate();
+  months += dayDiff / 30;
+  return months;
+}
+
+function fmtEUR(n){
+  return n.toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
+}
+
+function calcular(){
+  const errorBox = document.getElementById('errorBox');
+  errorBox.style.display = 'none';
+
+  const altaVal = document.getElementById('fechaAlta').value;
+  const ceseVal = document.getElementById('fechaCese').value;
+  const salarioAnual = parseFloat(document.getElementById('salarioAnual').value);
+  const diasMejora = parseFloat(document.getElementById('diasMejora').value);
+
+  if(!altaVal || !ceseVal || isNaN(salarioAnual) || isNaN(diasMejora)){
+    errorBox.textContent = 'Completa todos los campos para calcular.';
+    errorBox.style.display = 'block';
+    document.getElementById('resultsWrap').style.display = 'none';
+    return;
+  }
+
+  const fechaAlta = new Date(altaVal + 'T00:00:00');
+  const fechaCese = new Date(ceseVal + 'T00:00:00');
+  const fechaCorte = new Date('2012-02-12T00:00:00');
+
+  if(fechaCese <= fechaAlta){
+    errorBox.textContent = 'La fecha de extinción debe ser posterior a la fecha de alta.';
+    errorBox.style.display = 'block';
+    document.getElementById('resultsWrap').style.display = 'none';
+    return;
+  }
+
+  const salarioDiario = salarioAnual / 365;
+  const mesesTotales = monthsBetween(fechaAlta, fechaCese);
+  const aniosServicio = mesesTotales / 12;
+
+  let mesesPre = 0, mesesPost = 0;
+  let regimenMixto = fechaAlta < fechaCorte;
+
+  if(regimenMixto){
+    if(fechaCese <= fechaCorte){
+      mesesPre = mesesTotales;
+      mesesPost = 0;
+    } else {
+      mesesPre = monthsBetween(fechaAlta, fechaCorte);
+      mesesPost = monthsBetween(fechaCorte, fechaCese);
+    }
+  } else {
+    mesesPost = mesesTotales;
+  }
+
+  // Importes de exención
+  let importePre = salarioDiario * mesesPre * 3.75;   // 45 dias/año => factor mensual 3.75
+  let importePost = salarioDiario * mesesPost * 2.75; // 33 dias/año => factor mensual 2.75
+  let totalSinTope = importePre + importePost;
+
+  const tope720dias = salarioDiario * 720;   // equivalente 24 mensualidades
+  const tope42mens = salarioDiario * 30 * 42; // limite absoluto de mensualidades
+
+  let topeAplicable = tope720dias;
+  if(importePre > tope720dias){
+    topeAplicable = Math.min(importePre, tope42mens);
+  }
+
+  let exento = Math.min(totalSinTope, topeAplicable);
+  exento = Math.min(exento, 180000); // limite absoluto art 7.e)
+
+  // Total pactado (mejora RLT) y mejora sujeta
+  const totalPactado = salarioDiario * diasMejora * aniosServicio;
+  let mejora = totalPactado - exento;
+  if(mejora < 0) mejora = 0;
+
+  const totalBruto = exento + mejora;
+
+  // Reduccion 30%
+  const cocienteFraccionado = aniosServicio / 2;
+  const cumpleGeneracion = aniosServicio > 2;
+  const cumpleFraccionado2 = cocienteFraccionado > 2;
+
+  const baseReducibleTope = 300000;
+  const mejoraReducible = Math.min(mejora, baseReducibleTope);
+  const mejoraExcedente = Math.max(mejora - baseReducibleTope, 0);
+
+  function baseTrasReduccion(aplicaReduccion){
+    if(!aplicaReduccion) return mejora;
+    return mejoraReducible * 0.7 + mejoraExcedente;
+  }
+
+  const aplicaUnico = cumpleGeneracion;
+  const aplicaFraccionado = cumpleGeneracion && cumpleFraccionado2;
+
+  const baseUnico = baseTrasReduccion(aplicaUnico);
+  const baseFraccionado = baseTrasReduccion(aplicaFraccionado);
+
+  // Recomendacion
+  let recoTitle, recoTexto, stampActivo;
+  if(!cumpleGeneracion){
+    recoTitle = 'No aplica la reducción del 30%';
+    recoTexto = 'Con ' + aniosServicio.toFixed(1) + ' años de antigüedad no se supera el período de generación de 2 años exigido por el art. 18.2 LIRPF. La mejora tributa íntegra, se cobre en uno o en dos pagos.';
+    stampActivo = null;
+  } else if(aniosServicio <= 4){
+    recoTitle = 'Cobra en un pago único, en el ejercicio de la extinción';
+    recoTexto = 'Con ' + aniosServicio.toFixed(1) + ' años de antigüedad, si fraccionas el cobro en 2 ejercicios el cociente (antigüedad ÷ 2 = ' + cocienteFraccionado.toFixed(2) + ') no supera 2, y perderías la reducción del 30% sobre la mejora. Cobrando todo en un único ejercicio, el cociente es la propia antigüedad y sí supera 2.';
+    stampActivo = 'unico';
+  } else {
+    recoTitle = 'Puedes cobrar en uno o dos pagos sin perder la reducción';
+    recoTexto = 'Con ' + aniosServicio.toFixed(1) + ' años de antigüedad, el cociente al fraccionar en 2 ejercicios (' + cocienteFraccionado.toFixed(2) + ') supera 2, por lo que la reducción del 30% se mantiene fraccionando o no. Fraccionar puede convenir para repartir la base entre dos ejercicios fiscales y moderar el tipo marginal — conviene revisarlo con tu asesor según el resto de tus ingresos de cada año.';
+    stampActivo = 'ambos';
+  }
+
+  // Render antigüedad / timeline
+  const track = document.getElementById('timelineTrack');
+  track.innerHTML = '';
+  if(regimenMixto && mesesPost > 0 && mesesPre > 0){
+    const pctPre = (mesesPre / mesesTotales) * 100;
+    const pctPost = (mesesPost / mesesTotales) * 100;
+    track.innerHTML =
+      '<div class="timeline-seg seg-pre" style="width:'+pctPre+'%">45 d/año</div>' +
+      '<div class="timeline-seg seg-post" style="width:'+pctPost+'%">33 d/año</div>';
+    document.getElementById('labelPre').textContent = 'hasta 11/02/2012 · ' + (mesesPre/12).toFixed(1) + ' años';
+    document.getElementById('labelPost').textContent = 'desde 12/02/2012 · ' + (mesesPost/12).toFixed(1) + ' años';
+  } else if(regimenMixto && mesesPost === 0){
+    track.innerHTML = '<div class="timeline-seg seg-pre" style="width:100%">45 d/año</div>';
+    document.getElementById('labelPre').textContent = 'contrato extinguido antes del 12/02/2012';
+    document.getElementById('labelPost').textContent = '';
+  } else {
+    track.innerHTML = '<div class="timeline-seg seg-post" style="width:100%">33 d/año</div>';
+    document.getElementById('labelPre').textContent = 'contrato posterior al 12/02/2012';
+    document.getElementById('labelPost').textContent = aniosServicio.toFixed(1) + ' años de servicio';
+  }
+  document.getElementById('antiguedadTexto').textContent =
+    'Antigüedad total: ' + aniosServicio.toFixed(2) + ' años (' + Math.round(mesesTotales) + ' meses aprox.) · Salario diario estimado: ' + fmtEUR(salarioDiario);
+
+  // Render resumen (usamos el escenario recomendado para la cifra principal)
+  const usarFraccionado = (stampActivo === 'ambos'); // en "ambos" mostramos el escenario con reduccion igualmente valida; usamos único como referencia base
+  const baseMostrada = aplicaUnico ? baseUnico : mejora;
+  const ahorro = mejora - baseMostrada;
+
+  document.getElementById('totalBruto').textContent = fmtEUR(totalBruto);
+  document.getElementById('lineExento').textContent = fmtEUR(exento);
+  document.getElementById('lineMejora').textContent = fmtEUR(mejora);
+  document.getElementById('lineBaseReducida').textContent = fmtEUR(baseMostrada);
+  document.getElementById('lineAhorro').textContent = (ahorro > 0 ? fmtEUR(ahorro) : '— (sin reducción aplicable)');
+
+  const pctExento = totalBruto > 0 ? (exento/totalBruto*100) : 0;
+  const pctSujeto = 100 - pctExento;
+  const splitBar = document.getElementById('splitBar');
+  splitBar.innerHTML =
+    '<div class="split-seg split-exento" style="width:'+pctExento+'%">' + (pctExento>12? pctExento.toFixed(0)+'%':'') + '</div>' +
+    '<div class="split-seg split-sujeto" style="width:'+pctSujeto+'%">' + (pctSujeto>12? pctSujeto.toFixed(0)+'%':'') + '</div>';
+
+  document.getElementById('recoTitle').textContent = recoTitle;
+  document.getElementById('recoTexto').textContent = recoTexto;
+
+  const stampU = document.getElementById('stampUnico');
+  const stampF = document.getElementById('stampFrac');
+  stampU.classList.remove('active');
+  stampF.classList.remove('active');
+  if(stampActivo === 'unico'){ stampU.classList.add('active'); }
+  if(stampActivo === 'ambos'){ stampU.classList.add('active'); stampF.classList.add('active'); }
+
+  document.getElementById('resultsWrap').style.display = 'block';
+  document.getElementById('resultsWrap').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// Calcular con los valores por defecto al cargar
+window.addEventListener('DOMContentLoaded', calcular);
+</script>
+
+</body>
+</html>
